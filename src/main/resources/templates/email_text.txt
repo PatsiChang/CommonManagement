@@ -1,0 +1,6 @@
+Hello [( ${username} )],
+
+You have been successfully subscribed to Smart Home
+
+Regards,
+     Smart Home
