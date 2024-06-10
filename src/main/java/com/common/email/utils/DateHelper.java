@@ -1,4 +1,4 @@
-package com.common.utils;
+package com.common.email.utils;
 
 import org.springframework.format.annotation.DateTimeFormat;
 

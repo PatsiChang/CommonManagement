@@ -1,11 +1,10 @@
-package com.common.service;
+package com.common.email.service;
 
-import com.common.bean.Email;
+import com.common.email.bean.Email;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -33,7 +32,7 @@ public class EmailService {
         mimeMessageHelper.setTo(request.getEmailReceiver());
         mimeMessageHelper.setSubject(request.getSubject());
 
-        if(request.isHTML()) {
+        if (request.isHTML()) {
             Context context = new Context();
             context.setVariable("receiverName", request.getReceiverName());
             String processedString = templateEngine.process("email_html", context);

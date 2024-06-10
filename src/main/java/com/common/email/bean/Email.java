@@ -1,4 +1,4 @@
-package com.common.bean;
+package com.common.email.bean;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

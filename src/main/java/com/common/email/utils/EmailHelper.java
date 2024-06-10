@@ -1,4 +1,4 @@
-package com.common.utils;
+package com.common.email.utils;
 
 public class EmailHelper {
     public static String generateEmailTemplate(String body, String recipientName){
