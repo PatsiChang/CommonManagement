@@ -53,4 +53,14 @@ public class ValidationHelper {
         }
         return true;
     }
+
+    //Check if image is Jpeg
+    public static boolean isJpeg(byte[] bytes) {
+        if (bytes == null || bytes.length < 3) {
+            return false;
+        }
+        return (bytes[0] & 0xFF) == 0xFF &&
+            (bytes[1] & 0xFF) == 0xD8 &&
+            (bytes[2] & 0xFF) == 0xFF;
+    }
 }
