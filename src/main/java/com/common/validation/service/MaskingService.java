@@ -1,6 +1,7 @@
 package com.common.validation.service;
 
 import com.common.validation.mask.MaskingFields;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class MaskingService {
 
     @Autowired
@@ -43,41 +45,37 @@ public class MaskingService {
     }
 
     //Handle list<String> masking
-    public List<String> maskingLists(List<String> listToBeProcessed, MaskingFields maskingFields) {
-        listToBeProcessed.forEach(System.out::println);
+    public List<String> maskingListsOfString(List<String> listToBeProcessed, MaskingFields maskingFields) {
         return listToBeProcessed.stream()
-            .map(maskingFields::mask)
+            .map(stringToBeProcessed -> maskingFields.mask(stringToBeProcessed))
             .collect(Collectors.toList());
     }
 
     //Handle Each field
     public Object getFields(Field field, Object object, MaskingFields maskingFields) {
         try {
-            try {
-                field.setAccessible(true);
-                Class<?> fieldType = field.getType();
-                if (fieldType.equals(List.class)) {
-                    ParameterizedType listType = (ParameterizedType) field.getGenericType();
-                    Class<?> nestedType = (Class<?>) listType.getActualTypeArguments()[0];
-                    if (nestedType.equals(String.class)) {
-                        return maskingLists((List<String>) field.get(object), maskingFields);
-                    } else {
-                        List<?> nestedList = (List<?>) field.get(object);
-//                        Field[] fields = nestedList.get(0));
-                        for (Object nestedObject : nestedList) {
-                            for (Field nestedField : nestedObject.getClass().getDeclaredFields()) {
-                                if (!isStaticOrSerialVersionUID(nestedField)) {
-                                    getFields(nestedField, nestedObject, maskingFields);
-                                }
+            field.setAccessible(true);
+            Class<?> fieldType = field.getType();
+            if (fieldType.equals(List.class)) {
+                ParameterizedType listType = (ParameterizedType) field.getGenericType();
+                Class<?> nestedType = (Class<?>) listType.getActualTypeArguments()[0];
+                if (nestedType.equals(String.class)) {
+                    field.set(object, maskingListsOfString((List<String>) field.get(object), maskingFields));
+                    return object;
+                } else {
+                    List<?> nestedList = (List<?>) field.get(object);
+                    for (Object nestedObject : nestedList) {
+                        for (Field nestedField : nestedObject.getClass().getDeclaredFields()) {
+                            if (!isStaticOrSerialVersionUID(nestedField)) {
+                                getFields(nestedField, nestedObject, maskingFields);
                             }
                         }
                     }
-                } else if (field.get(object) instanceof String) {
-                    return masking((String) invokeGetter(object, field), field, object, maskingFields);
                 }
-            } catch (InaccessibleObjectException e) {
+            } else if (field.get(object) instanceof String) {
+                return masking((String) invokeGetter(object, field), field, object, maskingFields);
             }
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | InaccessibleObjectException e) {
             throw new RuntimeException(e);
         }
         return object;
@@ -85,6 +83,7 @@ public class MaskingService {
 
     //First check if field is annotated
     public Object maskSensitiveFields(Object object) {
+        log.info("In MaskingService");
         Field[] fields = object.getClass().getDeclaredFields();
         for (MaskingFields maskingFields : maskingFields) {
             for (Field field : fields) {

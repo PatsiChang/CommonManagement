@@ -6,17 +6,17 @@ import java.util.regex.Pattern;
 public class MaskingHelper {
     //MASK Profane words
     public static String maskProfanity(String input, String pattern) {
-        input = input.replaceAll(pattern, "******");
+        input = input.replaceAll("\\b" + pattern + "\\b", "******");
         return input;
     }
+
     public static String maskAllProfanity(String input, List<String> wordList) {
-        for (String word : wordList){
+        for (String word : wordList) {
             String regex = "\\b" + Pattern.quote(word) + "\\b";
             input = input.replaceAll(regex, "***");
         }
-     return input;
+        return input;
     }
-
 
     //MASK All
     public static String maskAll(String input) {

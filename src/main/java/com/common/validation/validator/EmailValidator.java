@@ -23,7 +23,7 @@ public class EmailValidator implements Validator {
             errorList.add("Invalid Email!");
             return errorList;
         }
-        return null;
+        return List.of();
     };
 
 }
