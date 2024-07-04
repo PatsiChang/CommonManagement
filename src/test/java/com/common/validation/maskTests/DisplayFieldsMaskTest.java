@@ -17,6 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.lenient;
 
+//Use this annotation when dealing with repository when plain mockito unit testing
 @ExtendWith(MockitoExtension.class)
 public class DisplayFieldsMaskTest {
     @InjectMocks

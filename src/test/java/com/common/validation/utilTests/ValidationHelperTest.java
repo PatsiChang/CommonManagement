@@ -85,22 +85,22 @@ public class ValidationHelperTest {
 
     @Test
     public void testIsJpeg_InsufficientLength() {
-        assertFalse(ValidationHelper.isJpeg(new byte[] {0x00}));
-        assertFalse(ValidationHelper.isJpeg(new byte[] {0x00, 0x00}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{0x00}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{0x00, 0x00}));
     }
 
     @Test
     public void testIsJpeg_ValidJpegHeader() {
-        assertTrue(ValidationHelper.isJpeg(new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
-        assertTrue(ValidationHelper.isJpeg(new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00}));
+        assertTrue(ValidationHelper.isJpeg(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF}));
+        assertTrue(ValidationHelper.isJpeg(new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00}));
     }
 
     @Test
     public void testIsJpeg_InvalidJpegHeader() {
-        assertFalse(ValidationHelper.isJpeg(new byte[] {0x00, 0x00, 0x00}));
-        assertFalse(ValidationHelper.isJpeg(new byte[] {(byte) 0xFF, 0x00, 0x00}));
-        assertFalse(ValidationHelper.isJpeg(new byte[] {(byte) 0xFF, (byte) 0xD8, 0x00}));
-        assertFalse(ValidationHelper.isJpeg(new byte[] {(byte) 0xFF, 0x00, (byte) 0xFF}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{0x00, 0x00, 0x00}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{(byte) 0xFF, 0x00, 0x00}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{(byte) 0xFF, (byte) 0xD8, 0x00}));
+        assertFalse(ValidationHelper.isJpeg(new byte[]{(byte) 0xFF, 0x00, (byte) 0xFF}));
     }
 
 }

@@ -16,7 +16,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-//@SpringBootTest(classes = MainApplication.class)
 @ActiveProfiles("test")
 public class EmailValidatorTest {
     @InjectMocks

@@ -1,6 +1,7 @@
 package com.common.validation.service;
 
 import com.common.validation.mask.MaskingFields;
+import com.common.validation.utils.ListHelper;
 import com.common.validation.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,25 +19,22 @@ public class ValidatorService {
     @Autowired
     private List<Validator> validators;
 
-    public List<String> callValidator(Field field, Object object, Validator validator
+    private List<String> callValidator(Field field, Object object, Validator validator
         , Map<String, Object> annotationParamMap) {
         List<String> errorListAll = new ArrayList<>();
         try {
-            if (field.getType().equals(List.class)) {
-                ParameterizedType listType = (ParameterizedType) field.getGenericType();
-                Class<?> nestedType = (Class<?>) listType.getActualTypeArguments()[0];
-                if (nestedType.equals(String.class)) {
-                    List<String> fieldValue = (List<String>) field.get(object);
-                    for (String str : fieldValue) {
-                        List<String> error = validator.validate(str, annotationParamMap);
-                        if (error.size() != 0) {
-                            errorListAll.addAll(error);
-                            return errorListAll;
-                        }
+            Object fieldValue = field.get(object);
+            if (ListHelper.isList(field) && ListHelper.isListOfStrings(field)) {
+                List<String> stringList = (List<String>) fieldValue;
+                for (String str : stringList) {
+                    List<String> error = validator.validate(str, annotationParamMap);
+                    if (error.size() != 0) {
+                        errorListAll.addAll(error);
+                        return errorListAll;
                     }
                 }
-            } else if (field.get(object) instanceof String) {
-                return validator.validate(field.get(object), annotationParamMap);
+            } else if (fieldValue instanceof String) {
+                return validator.validate(fieldValue, annotationParamMap);
             }
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -44,8 +42,19 @@ public class ValidatorService {
         return errorListAll;
     }
 
+    private Map<String, Object> extractAnnotationParams(Annotation annotation,
+                                                        Class<? extends Annotation> annotationClass)
+        throws InvocationTargetException, IllegalAccessException {
+        Map<String, Object> annotationParamMap = new HashMap<>();
+        for (Method method : annotationClass.getDeclaredMethods()) {
+            Object value = method.invoke(annotation);
+            annotationParamMap.put(method.getName(), value);
+        }
+        return annotationParamMap;
+    }
+
     public List<String> checkAnnotation(Object object) {
-        List<String> errorListAll = new ArrayList<>();
+        List<String> errorListAll = ListHelper.newList();
         Field[] fields = object.getClass().getDeclaredFields();
         for (Validator validator : validators) {
             for (Field field : fields) {
@@ -54,12 +63,9 @@ public class ValidatorService {
                     Annotation annotation = field.getAnnotation(annotationClass);
                     try {
                         field.setAccessible(true);
-                        Map<String, Object> annotationParamMap = new HashMap<>();
-                        for (Method method : annotationClass.getDeclaredMethods()) {
-                            Object value = method.invoke(annotation);
-                            annotationParamMap.put(method.getName(), value);
-                        }
-                        errorListAll = callValidator(field, object, validator, annotationParamMap);
+                        errorListAll = callValidator(field, object, validator,
+                            extractAnnotationParams(annotation, annotationClass));
+                        System.out.println(errorListAll);
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         throw new RuntimeException(e);
                     }

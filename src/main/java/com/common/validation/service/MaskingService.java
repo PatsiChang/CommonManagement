@@ -1,6 +1,7 @@
 package com.common.validation.service;
 
 import com.common.validation.mask.MaskingFields;
+import com.common.validation.utils.ListHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,18 +18,6 @@ public class MaskingService {
     @Autowired
     private List<MaskingFields> maskingFields;
 
-    private Object invokeGetter(Object obj, Field field) {
-        try {
-            String fieldName = field.getName();
-            String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-            Method getter = obj.getClass().getMethod(getterName);
-            return getter.invoke(obj);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to invoke getter for field: " + field.getName(), e);
-        }
-    }
-
-
     //Mask and Set the value back into the field
     public Object masking(String fieldInput, Field field, Object object, MaskingFields maskingFields) {
         try {
@@ -39,41 +28,36 @@ public class MaskingService {
         return object;
     }
 
-    private boolean isStaticOrSerialVersionUID(Field field) {
-        return Modifier.isStatic(field.getModifiers()) || "serialVersionUID".equals(field.getName())
-            || Modifier.isTransient(field.getModifiers());
-    }
-
-    //Handle list<String> masking
+    //Handle list<String>
     public List<String> maskingListsOfString(List<String> listToBeProcessed, MaskingFields maskingFields) {
         return listToBeProcessed.stream()
-            .map(stringToBeProcessed -> maskingFields.mask(stringToBeProcessed))
+            .map(maskingFields::mask)
             .collect(Collectors.toList());
     }
 
+    //Handle Nested
+    private void processNestedList(Field field, Object object, MaskingFields maskingFields) throws IllegalAccessException {
+        List<?> nestedList = (List<?>) field.get(object);
+        for (Object nestedObject : nestedList) {
+            for (Field nestedField : nestedObject.getClass().getDeclaredFields()) {
+                getFields(nestedField, nestedObject, maskingFields);
+            }
+        }
+    }
+
     //Handle Each field
-    public Object getFields(Field field, Object object, MaskingFields maskingFields) {
+    private Object getFields(Field field, Object object, MaskingFields maskingFields) {
         try {
             field.setAccessible(true);
-            Class<?> fieldType = field.getType();
-            if (fieldType.equals(List.class)) {
-                ParameterizedType listType = (ParameterizedType) field.getGenericType();
-                Class<?> nestedType = (Class<?>) listType.getActualTypeArguments()[0];
-                if (nestedType.equals(String.class)) {
+            if (ListHelper.isList(field)) {
+                if (ListHelper.isListOfStrings(field)) {
                     field.set(object, maskingListsOfString((List<String>) field.get(object), maskingFields));
                     return object;
                 } else {
-                    List<?> nestedList = (List<?>) field.get(object);
-                    for (Object nestedObject : nestedList) {
-                        for (Field nestedField : nestedObject.getClass().getDeclaredFields()) {
-                            if (!isStaticOrSerialVersionUID(nestedField)) {
-                                getFields(nestedField, nestedObject, maskingFields);
-                            }
-                        }
-                    }
+                    processNestedList(field, object, maskingFields);
                 }
             } else if (field.get(object) instanceof String) {
-                return masking((String) invokeGetter(object, field), field, object, maskingFields);
+                return masking((String) field.get(object), field, object, maskingFields);
             }
         } catch (IllegalAccessException | InaccessibleObjectException e) {
             throw new RuntimeException(e);
@@ -86,15 +70,13 @@ public class MaskingService {
         log.info("In MaskingService");
         Field[] fields = object.getClass().getDeclaredFields();
         for (MaskingFields maskingFields : maskingFields) {
+            Class<? extends Annotation> annotationClass = maskingFields.accept();
             for (Field field : fields) {
-                Class<? extends Annotation> annotationClass = maskingFields.accept();
                 if (field.isAnnotationPresent(annotationClass)) {
-                    if (!field.canAccess(object)) {
-                        try {
-                            field.setAccessible(true);
-                            object = getFields(field, object, maskingFields);
-                        } catch (InaccessibleObjectException e) {
-                        }
+                    try {
+                        object = getFields(field, object, maskingFields);
+                    } catch (InaccessibleObjectException e) {
+                        log.info("Unable to access variable in masking service!");
                     }
                 }
             }
