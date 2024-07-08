@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.lang.reflect.Field;
@@ -16,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class ListHelperTest {
 
     @Data
@@ -27,7 +30,6 @@ public class ListHelperTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         TestClassListOfString testClassListOfString
             = new TestClassListOfString(List.of("listOfStringField"), "stringField");
     }

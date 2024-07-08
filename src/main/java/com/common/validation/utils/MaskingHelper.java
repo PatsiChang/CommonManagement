@@ -13,7 +13,7 @@ public class MaskingHelper {
     public static String maskAllProfanity(String input, List<String> wordList) {
         for (String word : wordList) {
             String regex = "\\b" + Pattern.quote(word) + "\\b";
-            input = input.replaceAll(regex, "***");
+            input = maskProfanity(input, word);
         }
         return input;
     }

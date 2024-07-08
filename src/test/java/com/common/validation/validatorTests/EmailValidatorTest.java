@@ -8,26 +8,20 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-@ActiveProfiles("test")
-public class EmailValidatorTest {
+public class EmailValidatorTest extends CommonValidatorTest{
     @InjectMocks
     private EmailValidator emailValidator;
 
     static final String validEmailForValidation = "validEmail@gmail.com";
     static final String invalidEmailForValidation = "invalidEmail";
-    static final Map<String, Object> emptyMapForEmailValidation = Map.of();
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         try (MockedStatic<ValidationHelper> fileHelper = Mockito.mockStatic(ValidationHelper.class)) {
             fileHelper.when(() -> ValidationHelper.validateValidEmail(validEmailForValidation))
                 .thenReturn(true);
@@ -42,14 +36,14 @@ public class EmailValidatorTest {
     }
 
     @Test
-    void testValidEmailValidation() {
-        Object result = emailValidator.validate(validEmailForValidation, emptyMapForEmailValidation);
+    void testValidateWithValidValue() {
+        Object result = emailValidator.validate(validEmailForValidation, mapForValidation);
         assertEquals(List.of(), result);
     }
 
     @Test
-    void testInvalidEmailValidation() {
-        Object result = emailValidator.validate(invalidEmailForValidation, emptyMapForEmailValidation);
+    void testValidateWithInvalidValue() {
+        Object result = emailValidator.validate(invalidEmailForValidation, mapForValidation);
         assertEquals(List.of("Invalid Email!"), result);
 
     }

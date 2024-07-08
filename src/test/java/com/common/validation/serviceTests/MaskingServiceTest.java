@@ -8,19 +8,24 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class MaskingServiceTest {
 
     @InjectMocks
@@ -63,25 +68,20 @@ public class MaskingServiceTest {
     TestClass testClass = new TestClass("basicStringField bad word", stringList, listOfNestedClass);
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        when(displayFieldsMask.mask("basicStringField bad word"))
-            .thenReturn("basicStringField *** word");
-        when(displayFieldsMask.mask("First String with Bad Word"))
-            .thenReturn("First String with *** Word");
-        when(displayFieldsMask.mask("Second string without negative word"))
-            .thenReturn("Second string without negative word");
-        //Nested
-        when(displayFieldsMask.mask("firstNestedField"))
-            .thenReturn("firstNestedField");
-        when(displayFieldsMask.mask("secondNestedField"))
-            .thenReturn("secondNestedField");
-        when(displayFieldsMask.mask("firstNestedField bad word"))
-            .thenReturn("firstNestedField *** word");
-        when(displayFieldsMask.mask("Second string without negative word"))
-            .thenReturn("Second string without negative word");
-        when(displayFieldsMask.mask("secondNestedField bad bad word"))
-            .thenReturn("secondNestedField *** *** word");
+    void setUpMaskingServiceTest() {
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("basicStringField bad word", "basicStringField *** word");
+        replacements.put("First String with Bad Word", "First String with *** Word");
+        replacements.put("Second string without negative word", "Second string without negative word");
+        replacements.put("firstNestedField", "firstNestedField");
+        replacements.put("secondNestedField", "secondNestedField");
+        replacements.put("firstNestedField bad word", "firstNestedField *** word");
+        replacements.put("Second string without negative word", "Second string without negative word");
+
+        when(displayFieldsMask.mask(any(String.class))).thenAnswer(invocation -> {
+            String input = invocation.getArgument(0, String.class);
+            return replacements.getOrDefault(input, "secondNestedField *** *** word");
+        });
     }
 
     @Test
@@ -107,8 +107,7 @@ public class MaskingServiceTest {
     }
 
     @Test
-    void testMaskSensitiveFields() throws NoSuchFieldException {
-//        maskingService = spy(new MaskingService());
+    void testMaskSensitiveFields() {
         maskingFields = List.of(displayFieldsMask);
         ReflectionTestUtils.setField(maskingService, "maskingFields", maskingFields);
         when(displayFieldsMask.accept()).thenReturn(IsDisplayFields.class);

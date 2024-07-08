@@ -1,9 +1,9 @@
 package com.common.validation.utilTests;
 
 import com.common.validation.utils.ValidationHelper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -11,6 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 public class ValidationHelperTest {
     static final String containsSpecialCharacter = "specialChar!";
     static final String noSpecialCharacter = "noSpecialChar";
@@ -23,10 +24,6 @@ public class ValidationHelperTest {
     static final String noProfanity = "lengthToTest";
     static final List<String> profanityWordList = List.of("bad word 1", "bad word 2");
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testValidateContainsSpecialCharacter() {

@@ -3,7 +3,6 @@ package com.common.validation.mask;
 import com.common.validation.annotations.IsDisplayFields;
 import com.common.validation.repository.ProfanityWordsRepository;
 import com.common.validation.utils.MaskingHelper;
-import com.common.validation.utils.ValidationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
