@@ -5,23 +5,28 @@ import com.common.validation.annotations.IsPassword;
 import com.common.validation.repository.ProfanityWordsRepository;
 import com.common.validation.utils.ListHelper;
 import com.common.validation.utils.ValidationHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class PasswordValidator implements Validator {
-    @Autowired
-    private ProfanityWordsRepository profanityWordsRepository;
 
     public Class accept() {
         return IsPassword.class;
     }
 
     public List<String> validate(Object input, Map<String, Object> field) {
-        return validateWithParam(input.toString(), (int) field.get("min"), (int) field.get("max"));
+        try {
+            return validateWithParam(input.toString(), (int) field.get("min"), (int) field.get("max"));
+        } catch (Exception e) {
+            log.info("Unable to get annotation field values!");
+            return List.of();
+        }
     }
 
     public List<String> validateWithParam(String input, int min, int max) {

@@ -16,14 +16,16 @@ public class EmailValidator implements Validator {
         return IsEmail.class;
     }
 
-    public List<String> validate(Object input, Map<String, Object> field){
+    public List<String> validate(Object input, Map<String, Object> field) {
         log.info("In EmailValidator");
         List<String> errorList = ListHelper.newList();
         if (!ValidationHelper.validateValidEmail(input.toString())) {
             errorList.add("Invalid Email!");
             return errorList;
         }
-        return null;
-    };
+        return List.of();
+    }
+
+    ;
 
 }
