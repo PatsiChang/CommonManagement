@@ -45,6 +45,6 @@ public class DisplayFieldsMaskTest {
     @Test
     void testValidEmailValidation() {
         String result = displayFieldsMask.mask(inputWithProfanity);
-        assertEquals("This sentence contains *** and badbad and *** and *** word", result);
+        assertEquals("This sentence contains ****** and badbad and ****** and ****** word", result);
     }
 }

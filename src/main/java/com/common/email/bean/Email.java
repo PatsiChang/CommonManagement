@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class Email {
     private String emailReceiver;
     private String receiverName;
+    private String token;
     private String subject;
     private String message;
     private boolean isHTML;

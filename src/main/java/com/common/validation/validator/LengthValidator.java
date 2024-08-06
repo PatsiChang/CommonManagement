@@ -1,7 +1,7 @@
 package com.common.validation.validator;
 
+import com.common.commonUtils.ListHelper;
 import com.common.validation.annotations.CheckLength;
-import com.common.validation.utils.ListHelper;
 import com.common.validation.utils.ValidationHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

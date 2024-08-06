@@ -1,12 +1,10 @@
 package com.common.validation.validator;
 
 
+import com.common.commonUtils.ListHelper;
 import com.common.validation.annotations.IsPassword;
-import com.common.validation.repository.ProfanityWordsRepository;
-import com.common.validation.utils.ListHelper;
 import com.common.validation.utils.ValidationHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
