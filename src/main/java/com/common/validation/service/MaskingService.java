@@ -1,7 +1,7 @@
 package com.common.validation.service;
 
+import com.common.commonUtils.ListHelper;
 import com.common.validation.mask.MaskingFields;
-import com.common.validation.utils.ListHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

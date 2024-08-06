@@ -1,12 +1,11 @@
 package com.common.validation.utilTests;
 
-import com.common.validation.utils.ListHelper;
+import com.common.commonUtils.ListHelper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ActiveProfiles;
 

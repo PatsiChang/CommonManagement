@@ -35,7 +35,8 @@ public class EmailService {
         if (request.isHTML()) {
             Context context = new Context();
             context.setVariable("receiverName", request.getReceiverName());
-            String processedString = templateEngine.process("email_html", context);
+            context.setVariable("token", request.getToken());
+            String processedString = templateEngine.process("emailVerification", context);
             mimeMessageHelper.setText(processedString, true);
         } else {
             mimeMessageHelper.setText(request.getMessage(), false);
